@@ -1,13 +1,22 @@
 import Button from './Button';
 
-interface SeacrhBarProps {}
+interface SeacrhBarProps {
+    inputValue: string;
+    onChangeInputValue: React.ChangeEventHandler<HTMLInputElement>;
+    onSubmitData: React.FormEventHandler<HTMLFormElement>;
+}
 
-const SeacrhBar: React.FC<SeacrhBarProps> = ({}) => {
+const SearchBar: React.FC<SeacrhBarProps> = ({
+    inputValue,
+    onChangeInputValue,
+    onSubmitData
+}) => {
     return (
         <form
             method='post'
             action='#'
             className=''
+            onSubmit={onSubmitData}
         >
             <label htmlFor='search'></label>
             <input
@@ -15,6 +24,8 @@ const SeacrhBar: React.FC<SeacrhBarProps> = ({}) => {
                 id='search'
                 placeholder='user nickname...'
                 className='border px-3 py-1 w-72 rounded-l-md'
+                value={inputValue}
+                onChange={onChangeInputValue}
             />
             <Button
                 text='find user'
@@ -25,4 +36,4 @@ const SeacrhBar: React.FC<SeacrhBarProps> = ({}) => {
     );
 };
 
-export default SeacrhBar;
+export default SearchBar;
