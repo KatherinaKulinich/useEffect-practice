@@ -8,10 +8,11 @@ import Icon from './components/Icon';
 import SearchBar from './components/SearchBar';
 import UserDetails from './components/UserDetails';
 import UserList from './components/UserList';
+import { User } from './types/User';
 
 const App: React.FC = ({}) => {
-    const [users, setUsers] = useState();
-    const [selectedUser, setSelectedUser] = useState();
+    const [users, setUsers] = useState<Array<User>>();
+    const [selectedUser, setSelectedUser] = useState<User>();
     const [tempValue, setTempValue] = useState('');
     const [searchValue, setSearchValue] = useState('');
 
@@ -20,8 +21,13 @@ const App: React.FC = ({}) => {
     useEffect(() => {
         if (searchValue) {
             axios.get(`${api}${searchValue}`).then((result) => {
-                console.log(result.data);
-                setUsers(result.data.items);
+                const data = result.data.items;
+                const sortedData = data.map((item: any) => {
+                    const { login, id } = item;
+                    const user = { login, id };
+                    return user;
+                });
+                setUsers(sortedData);
             });
         }
     }, [searchValue]);
@@ -29,12 +35,12 @@ const App: React.FC = ({}) => {
     const onChangeInputValue: React.ChangeEventHandler<HTMLInputElement> = (
         event
     ) => {
-        const value = event.currentTarget.value
-        setTempValue(value)
+        const value = event.currentTarget.value;
+        setTempValue(value);
     };
 
     const onSubmitData: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault()
+        event.preventDefault();
         setSearchValue(tempValue);
     };
 
@@ -65,9 +71,9 @@ const App: React.FC = ({}) => {
                             styles='bg-red-500 rounded-md text-red-100'
                         />
                     </div>
-                    <div className='flex w-full items-center justify-between'>
+                    <div className='flex w-full justify-between'>
                         <div className='border-r-2 w-1/2'>
-                            <UserList usersData={[]} />
+                            {users && <UserList usersData={users} />}
                         </div>
                         <UserDetails
                             userName={'name'}

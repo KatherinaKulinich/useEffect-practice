@@ -1,7 +1,8 @@
+import { User } from '../types/User';
 import UserListItem from './UserListItem';
 
 interface UserListProps {
-    usersData: Array<any>;
+    usersData: Array<User>;
 }
 
 const UserList: React.FC<UserListProps> = ({ usersData }) => {
@@ -12,9 +13,12 @@ const UserList: React.FC<UserListProps> = ({ usersData }) => {
     // return usersData.map((user) => <UserListItem userName={user} />);
     return (
         <ul className='flex flex-col gap-3 max-w-[400px]'>
-            <UserListItem userName={'name'} />
-            <UserListItem userName={'name'} />
-            <UserListItem userName={'name'} />
+            {usersData?.map((user) => (
+                <UserListItem
+                    userName={user.login}
+                    key={user.id}
+                />
+            ))}
         </ul>
     );
 };
