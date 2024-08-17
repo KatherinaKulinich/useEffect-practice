@@ -11,8 +11,8 @@ import UserList from './components/UserList';
 import { User } from './types/User';
 
 const App: React.FC = ({}) => {
-    const [users, setUsers] = useState<Array<User>>();
-    const [selectedUser, setSelectedUser] = useState<User>();
+    const [users, setUsers] = useState<Array<User>>([]);
+    // const [selectedUser, setSelectedUser] = useState<User>();
     const [tempValue, setTempValue] = useState('');
     const [searchValue, setSearchValue] = useState('');
 
@@ -22,6 +22,7 @@ const App: React.FC = ({}) => {
         if (searchValue) {
             axios.get(`${api}${searchValue}`).then((result) => {
                 const data = result.data.items;
+                console.log(result);
                 const sortedData = data.map((item: any) => {
                     const { login, id } = item;
                     const user = { login, id };
@@ -43,6 +44,8 @@ const App: React.FC = ({}) => {
         event.preventDefault();
         setSearchValue(tempValue);
     };
+
+    
 
     return (
         <>
@@ -73,7 +76,11 @@ const App: React.FC = ({}) => {
                     </div>
                     <div className='flex w-full justify-between'>
                         <div className='border-r-2 w-1/2'>
-                            {users && <UserList usersData={users} />}
+                            {users && (
+                                <UserList
+                                    usersData={users}
+                                />
+                            )}
                         </div>
                         <UserDetails
                             userName={'name'}
