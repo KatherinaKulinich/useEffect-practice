@@ -1,14 +1,28 @@
+import { UserDetailedData } from '../types/User';
+
 interface UserDetailsProps {
-    userName: string;
-    userAvatar: string;
+    user: UserDetailedData;
 }
 
-const UserDetails: React.FC<UserDetailsProps> = ({ userName, userAvatar }) => {
+const UserDetails: React.FC<UserDetailsProps> = ({ user }) => {
+    const {
+        id,
+        login,
+        avatar_url,
+        followers,
+        following,
+        created_at,
+        bio,
+        location,
+        name,
+        url
+    } = user;
+
     return (
         <div>
             <div>
-                <h2>{userName}</h2>
-                <img src={userAvatar} />
+                <h2>{login}</h2>
+                <img src={avatar_url} />
             </div>
             <div>
                 <p></p>

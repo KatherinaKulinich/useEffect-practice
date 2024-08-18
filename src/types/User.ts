@@ -10,4 +10,8 @@ export interface UserDetailedData {
     followers: number;
     following: number;
     created_at: string;
+    bio: string | null;
+    location: string | null;
+    name: string;
+    url: string;
 }

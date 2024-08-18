@@ -1,6 +1,7 @@
 // import './App.css'
 
 import axios from 'axios';
+import { Octokit } from 'octokit';
 import { useEffect, useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import Button from './components/Button';
@@ -20,6 +21,7 @@ const App: React.FC = ({}) => {
     const [searchValue, setSearchValue] = useState('');
 
     const api = 'https://api.github.com';
+    const token = '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';
 
     useEffect(() => {
         if (searchValue) {
@@ -38,32 +40,49 @@ const App: React.FC = ({}) => {
     useEffect(() => {
         // console.log(selectedUser)
         if (selectedUser !== null) {
-            console.log('!!!');
-            const query = selectedUser.login;
+            const getUserData = async () => {
+                const octokit = new Octokit({
+                    auth: token
+                });
 
-            axios.get(`${api}/users/${query}`).then((result) => {
-                const data = result.data;
+                const account_id = selectedUser.id;
+                const result = await octokit.request('GET /user/{account_id}', {
+                    account_id,
+                    headers: {
+                        'X-GitHub-Api-Version': '2022-11-28'
+                    }
+                });
+                const userData = result.data;
 
                 const {
                     id,
                     login,
+                    avatar_url,
                     followers,
                     following,
-                    avatar_url,
-                    created_at
-                } = data;
+                    created_at,
+                    bio,
+                    location,
+                    name,
+                    url
+                } = userData;
 
                 const user = {
                     id,
                     login,
+                    avatar_url,
                     followers,
                     following,
-                    avatar_url,
-                    created_at
+                    created_at,
+                    bio,
+                    location,
+                    name,
+                    url
                 };
 
                 setUserDetailedData(user);
-            });
+            };
+            getUserData();
         }
     }, [selectedUser]);
 
@@ -125,10 +144,11 @@ const App: React.FC = ({}) => {
                                 />
                             )}
                         </div>
-                        <UserDetails
-                            userName={'name'}
-                            userAvatar={''}
-                        />
+                        {userDetailedData ? (
+                            <UserDetails user={userDetailedData} />
+                        ) : (
+                            <div></div>
+                        )}
                     </div>
                 </div>
             </main>
