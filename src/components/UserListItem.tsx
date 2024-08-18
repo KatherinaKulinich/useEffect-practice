@@ -4,7 +4,6 @@ import { User } from '../types/User';
 import Icon from './Icon';
 
 interface UserListItemProps {
-    // userName: string;
     user: User;
     selectUser: (user: User) => void;
 }

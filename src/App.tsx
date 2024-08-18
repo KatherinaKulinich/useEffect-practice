@@ -8,21 +8,23 @@ import Icon from './components/Icon';
 import SearchBar from './components/SearchBar';
 import UserDetails from './components/UserDetails';
 import UserList from './components/UserList';
-import { User } from './types/User';
+import { User, UserDetailedData } from './types/User';
 
 const App: React.FC = ({}) => {
     const [users, setUsers] = useState<Array<User>>([]);
-    // const [selectedUser, setSelectedUser] = useState<User>();
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [userDetailedData, setUserDetailedData] =
+        useState<UserDetailedData | null>(null);
+
     const [tempValue, setTempValue] = useState('');
     const [searchValue, setSearchValue] = useState('');
 
-    const api = 'https://api.github.com/search/users?q=';
+    const api = 'https://api.github.com';
 
     useEffect(() => {
         if (searchValue) {
-            axios.get(`${api}${searchValue}`).then((result) => {
+            axios.get(`${api}/search/users?q=${searchValue}`).then((result) => {
                 const data = result.data.items;
-                console.log(result);
                 const sortedData = data.map((item: any) => {
                     const { login, id } = item;
                     const user = { login, id };
@@ -32,6 +34,38 @@ const App: React.FC = ({}) => {
             });
         }
     }, [searchValue]);
+
+    useEffect(() => {
+        // console.log(selectedUser)
+        if (selectedUser !== null) {
+            console.log('!!!');
+            const query = selectedUser.login;
+
+            axios.get(`${api}/users/${query}`).then((result) => {
+                const data = result.data;
+
+                const {
+                    id,
+                    login,
+                    followers,
+                    following,
+                    avatar_url,
+                    created_at
+                } = data;
+
+                const user = {
+                    id,
+                    login,
+                    followers,
+                    following,
+                    avatar_url,
+                    created_at
+                };
+
+                setUserDetailedData(user);
+            });
+        }
+    }, [selectedUser]);
 
     const onChangeInputValue: React.ChangeEventHandler<HTMLInputElement> = (
         event
@@ -45,7 +79,13 @@ const App: React.FC = ({}) => {
         setSearchValue(tempValue);
     };
 
-    
+    const onSelectUserData = (user: User) => {
+        setSelectedUser(user);
+    };
+
+    useEffect(() => {
+        console.log(userDetailedData);
+    }, [userDetailedData]);
 
     return (
         <>
@@ -79,6 +119,9 @@ const App: React.FC = ({}) => {
                             {users && (
                                 <UserList
                                     usersData={users}
+                                    onSelectUserData={(user) =>
+                                        onSelectUserData(user)
+                                    }
                                 />
                             )}
                         </div>
