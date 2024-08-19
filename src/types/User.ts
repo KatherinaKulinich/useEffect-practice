@@ -13,5 +13,4 @@ export interface UserDetailedData {
     bio: string | null;
     location: string | null;
     name: string;
-    url: string;
 }

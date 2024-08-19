@@ -11,21 +11,22 @@ import UserDetails from './components/UserDetails';
 import UserList from './components/UserList';
 import { User, UserDetailedData } from './types/User';
 
+
 const App: React.FC = ({}) => {
     const [users, setUsers] = useState<Array<User>>([]);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [userDetailedData, setUserDetailedData] =
-        useState<UserDetailedData | null>(null);
-
+    useState<UserDetailedData | null>(null);
+    
     const [tempValue, setTempValue] = useState('');
     const [searchValue, setSearchValue] = useState('');
-
-    const api = 'https://api.github.com';
-    const token = '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';
+    
+    const TOKEN = import.meta.env.VITE_ACCESS_TOKEN;
+    const API = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
         if (searchValue) {
-            axios.get(`${api}/search/users?q=${searchValue}`).then((result) => {
+            axios.get(`${API}/search/users?q=${searchValue}`).then((result) => {
                 const data = result.data.items;
                 const sortedData = data.map((item: any) => {
                     const { login, id } = item;
@@ -42,7 +43,7 @@ const App: React.FC = ({}) => {
         if (selectedUser !== null) {
             const getUserData = async () => {
                 const octokit = new Octokit({
-                    auth: token
+                    auth: TOKEN
                 });
 
                 const account_id = selectedUser.id;
@@ -64,7 +65,6 @@ const App: React.FC = ({}) => {
                     bio,
                     location,
                     name,
-                    url
                 } = userData;
 
                 const user = {
@@ -77,7 +77,6 @@ const App: React.FC = ({}) => {
                     bio,
                     location,
                     name,
-                    url
                 };
 
                 setUserDetailedData(user);

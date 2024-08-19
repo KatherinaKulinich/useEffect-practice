@@ -6,7 +6,6 @@ interface UserDetailsProps {
 
 const UserDetails: React.FC<UserDetailsProps> = ({ user }) => {
     const {
-        id,
         login,
         avatar_url,
         followers,
@@ -15,19 +14,38 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user }) => {
         bio,
         location,
         name,
-        url
     } = user;
 
     return (
         <div>
+            <img src={avatar_url} />
             <div>
-                <h2>{login}</h2>
-                <img src={avatar_url} />
+                <div>
+                    <h2>{login}</h2>
+                    <p>{name}</p>
+                    <p>{bio}</p>
+                </div>
+                <div>
+                    <p>{location}</p>
+                    <p>Profile had been created at: {created_at}</p>
+                </div>
+                <div>
+                    <div>
+                        <p>Followers:</p>
+                        <p>{followers}</p>
+                    </div>
+                    <div>
+                        <p>Following:</p>
+                        <p>{following}</p>
+                    </div>
+                </div>
             </div>
-            <div>
-                <p></p>
-                <p></p>
-            </div>
+            <a
+                href={`https://github.com/${login}`}
+                target='_blank'
+            >
+                Go to GitHub profile
+            </a>
         </div>
     );
 };
