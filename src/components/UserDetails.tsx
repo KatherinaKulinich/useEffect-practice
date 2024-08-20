@@ -1,10 +1,69 @@
-import { UserDetailedData } from '../types/User';
+import { Octokit } from 'octokit';
+import { useEffect, useState } from 'react';
+import { User, UserDetailedData } from '../types/User';
 
 interface UserDetailsProps {
-    user: UserDetailedData;
+    selectedUser: User | null;
 }
 
-const UserDetails: React.FC<UserDetailsProps> = ({ user }) => {
+const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
+    const TOKEN = import.meta.env.VITE_ACCESS_TOKEN;
+
+    const [userDetailedData, setUserDetailedData] =
+        useState<UserDetailedData | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [isSuccess, setIsSuccess] = useState<boolean>(false);
+
+    useEffect(() => {
+        setIsSuccess(false);
+        if (selectedUser !== null) {
+            setLoading(true);
+            const getUserData = async () => {
+                const octokit = new Octokit({
+                    auth: TOKEN
+                });
+
+                const account_id = selectedUser.id;
+                const result = await octokit.request('GET /user/{account_id}', {
+                    account_id,
+                    headers: {
+                        'X-GitHub-Api-Version': '2022-11-28'
+                    }
+                });
+                const userData = result.data;
+
+                const {
+                    id,
+                    login,
+                    avatar_url,
+                    followers,
+                    following,
+                    created_at,
+                    bio,
+                    location,
+                    name
+                } = userData;
+
+                const user = {
+                    id,
+                    login,
+                    avatar_url,
+                    followers,
+                    following,
+                    created_at,
+                    bio,
+                    location,
+                    name
+                };
+
+                setUserDetailedData(user);
+                setIsSuccess(true);
+                setLoading(false);
+            };
+            getUserData();
+        }
+    }, [selectedUser]);
+
     const {
         login,
         avatar_url,
@@ -14,49 +73,57 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user }) => {
         bio,
         location,
         name
-    } = user;
+    } = userDetailedData ?? {};
+
+    if (loading && !isSuccess) {
+        return <p className='flex justify-center text-md uppercase text-slate-500'>Loading..</p>;
+    }
 
     return (
-        <div className='flex flex-col gap-12 p-4 items-center'>
-            <img
-                className='rounded-full w-72 h-72'
-                src={avatar_url}
-            />
-            <div className='flex flex-col gap-6'>
-                <div className='flex flex-col gap-3'>
-                    <div className='flex flex-col items-center'>
-                        <h2 className='font-bold text-xl'>{login}</h2>
-                        <p className='font-light text-md text-slate-600'>
-                            {name}
-                        </p>
+        <>
+            {!loading && isSuccess && userDetailedData && (
+                <div className='flex flex-col gap-12 p-4 items-center'>
+                    <img
+                        className='rounded-full w-72 h-72'
+                        src={avatar_url}
+                    />
+                    <div className='flex flex-col gap-6'>
+                        <div className='flex flex-col gap-3'>
+                            <div className='flex flex-col items-center'>
+                                <h2 className='font-bold text-xl'>{login}</h2>
+                                <p className='font-light text-md text-slate-600'>
+                                    {name}
+                                </p>
+                            </div>
+                            <p className='text-sm'>{bio}</p>
+                        </div>
+                        <div className='font-light text-sm text-slate-600'>
+                            <p>{location}</p>
+                            <p>Profile had been created at: {created_at}</p>
+                        </div>
+                        <div className='flex items-center justify-between'>
+                            <div className='flex items-center gap-2 text-md text-slate-600 font-semibold'>
+                                <p>Followers:</p>
+                                <p>{followers}</p>
+                            </div>
+                            <div className='flex items-center gap-2 text-md text-slate-600 font-semibold'>
+                                <p>Following:</p>
+                                <p>{following}</p>
+                            </div>
+                        </div>
                     </div>
-                    <p className='text-sm'>{bio}</p>
-                </div>
-                <div className='font-light text-sm text-slate-600'>
-                    <p>{location}</p>
-                    <p>Profile had been created at: {created_at}</p>
-                </div>
-                <div className='flex items-center justify-between'>
-                    <div className='flex items-center gap-2 text-md text-slate-600 font-semibold'>
-                        <p>Followers:</p>
-                        <p>{followers}</p>
-                    </div>
-                    <div className='flex items-center gap-2 text-md text-slate-600 font-semibold'>
-                        <p>Following:</p>
-                        <p>{following}</p>
+                    <div className='flex items-center justify-center'>
+                        <a
+                            href={`https://github.com/${login}`}
+                            target='_blank'
+                            className='px-4 py-2 border rounded-lg uppercase bg-sky-500 text-sky-50 font-bold'
+                        >
+                            Go to GitHub profile
+                        </a>
                     </div>
                 </div>
-            </div>
-            <div className='flex items-center justify-center'>
-                <a
-                    href={`https://github.com/${login}`}
-                    target='_blank'
-                    className='px-4 py-2 border rounded-lg uppercase bg-sky-500 text-sky-50 font-bold'
-                >
-                    Go to GitHub profile
-                </a>
-            </div>
-        </div>
+            )}
+        </>
     );
 };
 

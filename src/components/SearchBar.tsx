@@ -1,22 +1,34 @@
+import { useEffect, useState } from 'react';
 import Button from './Button';
 
 interface SeacrhBarProps {
     inputValue: string;
-    onChangeInputValue: React.ChangeEventHandler<HTMLInputElement>;
-    onSubmitData: React.FormEventHandler<HTMLFormElement>;
+    onSubmitData: (
+        event: React.FormEvent<HTMLFormElement>,
+        value: string
+    ) => void;
 }
 
-const SearchBar: React.FC<SeacrhBarProps> = ({
-    inputValue,
-    onChangeInputValue,
-    onSubmitData
-}) => {
+const SearchBar: React.FC<SeacrhBarProps> = ({ inputValue, onSubmitData }) => {
+    const [tempValue, setTempValue] = useState('');
+
+    useEffect(() => {
+        setTempValue(inputValue);
+    }, [inputValue]);
+
+    const onChangeInputValue: React.ChangeEventHandler<HTMLInputElement> = (
+        event
+    ) => {
+        const value = event.currentTarget.value;
+        setTempValue(value);
+    };
+
     return (
         <form
             method='post'
             action='#'
             className=''
-            onSubmit={onSubmitData}
+            onSubmit={(e) => onSubmitData(e, tempValue)}
         >
             <label htmlFor='search'></label>
             <input
@@ -24,7 +36,7 @@ const SearchBar: React.FC<SeacrhBarProps> = ({
                 id='search'
                 placeholder='user nickname...'
                 className='border px-3 py-1 w-72 rounded-l-md'
-                value={inputValue}
+                value={tempValue}
                 onChange={onChangeInputValue}
             />
             <Button

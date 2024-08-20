@@ -1,4 +1,10 @@
-interface ButtonProps {
+import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
+
+interface ButtonProps
+    extends DetailedHTMLProps<
+        ButtonHTMLAttributes<HTMLButtonElement>,
+        HTMLButtonElement
+    > {
     text: string;
     type: 'button' | 'submit' | 'reset';
     styles: string;

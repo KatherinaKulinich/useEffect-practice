@@ -6,13 +6,18 @@ import Icon from './Icon';
 interface UserListItemProps {
     user: User;
     selectUser: (user: User) => void;
+    additionalStyles: string;
 }
 
-const UserListItem: React.FC<UserListItemProps> = ({ user, selectUser }) => {
+const UserListItem: React.FC<UserListItemProps> = ({
+    user,
+    selectUser,
+    additionalStyles
+}) => {
     const { login } = user;
     return (
         <li
-            className='flex items-center justify-between border rounded-md px-4 py-2 cursor-pointer bg-sky-50'
+            className={`flex items-center justify-between border rounded-md px-4 py-2 cursor-pointer ${additionalStyles}`}
             onClick={() => selectUser(user)}
         >
             <div className='flex items-center gap-6'>
