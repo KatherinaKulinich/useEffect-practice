@@ -20,6 +20,7 @@ const SearchBar: React.FC<SeacrhBarProps> = ({ inputValue, onSubmitData }) => {
         event
     ) => {
         const value = event.currentTarget.value;
+
         setTempValue(value);
     };
 

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
+import Button from './components/Button';
 import Icon from './components/Icon';
 import SearchBar from './components/SearchBar';
 import UserDetails from './components/UserDetails';
 import UsersList from './components/UsersList';
 import { User } from './types/User';
-import Button from './components/Button';
 
 const App: React.FC = ({}) => {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -16,7 +16,9 @@ const App: React.FC = ({}) => {
         value: string
     ) => {
         event.preventDefault();
-        setSearchValue(value);
+        if (value.trim() !== '') {
+            setSearchValue(value);
+        }
     };
 
     const onSelectUserData = (user: User | null) => {
@@ -37,8 +39,8 @@ const App: React.FC = ({}) => {
                 </div>
             </header>
             <main className='w-screen container mx-auto px-2 py-6'>
-                <div className='flex flex-col gap-16'>
-                    <div className='flex items-center justify-center gap-16 border px-3 py-5 rounded-md'>
+                <div className='flex flex-col gap-10 items-center'>
+                    <div className='flex items-center justify-center gap-16 border px-10 py-5 rounded-md'>
                         <SearchBar
                             inputValue={searchValue}
                             onSubmitData={onSubmitData}
@@ -61,7 +63,9 @@ const App: React.FC = ({}) => {
                         </div>
                         <div className='w-1/2'>
                             {selectedUser && (
-                                <UserDetails selectedUser={selectedUser} />
+                                <>
+                                    <UserDetails selectedUser={selectedUser} />
+                                </>
                             )}
                         </div>
                     </div>

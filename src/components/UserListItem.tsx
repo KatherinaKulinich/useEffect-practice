@@ -14,9 +14,8 @@ const UserListItem: React.FC<UserListItemProps> = ({
     selectUser,
     additionalStyles
 }) => {
-    
     let { login } = user;
-    login = login?.length > 18 ? login.slice(0, 18) + '...' : login;
+    login = login?.length > 18 ? `${login.slice(0, 18)}...` : login;
 
     return (
         <li

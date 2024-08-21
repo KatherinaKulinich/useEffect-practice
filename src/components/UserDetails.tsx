@@ -1,6 +1,7 @@
 import { Octokit } from 'octokit';
 import { useEffect, useState } from 'react';
 import { User, UserDetailedData } from '../types/User';
+import Timer from './Timer';
 
 interface UserDetailsProps {
     selectedUser: User | null;
@@ -8,11 +9,14 @@ interface UserDetailsProps {
 
 const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
     const TOKEN = import.meta.env.VITE_ACCESS_TOKEN;
+    const initialSecondsValue = 10;
 
     const [userDetailedData, setUserDetailedData] =
         useState<UserDetailedData | null>(null);
+
     const [loading, setLoading] = useState<boolean>(false);
     const [isSuccess, setIsSuccess] = useState<boolean>(false);
+    const [seconds, setSeconds] = useState<number>(initialSecondsValue);
 
     useEffect(() => {
         setIsSuccess(false);
@@ -55,7 +59,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
                     location,
                     name
                 };
-
+                setSeconds(initialSecondsValue);
                 setUserDetailedData(user);
                 setIsSuccess(true);
                 setLoading(false);
@@ -63,6 +67,12 @@ const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
             getUserData();
         }
     }, [selectedUser]);
+
+    useEffect(() => {
+        if (seconds < 1) {
+            setUserDetailedData(null);
+        }
+    }, [seconds]);
 
     const {
         login,
@@ -76,16 +86,23 @@ const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
     } = userDetailedData ?? {};
 
     if (loading && !isSuccess) {
-        return <p className='flex justify-center text-md uppercase text-slate-500'>Loading..</p>;
+        return (
+            <p className='flex justify-center text-md uppercase text-slate-500'>
+                Loading..
+            </p>
+        );
     }
 
-    const date = created_at && new Date(created_at).getFullYear()
-
+    const date = created_at && new Date(created_at).getFullYear();
 
     return (
         <>
             {!loading && isSuccess && userDetailedData && (
                 <div className='flex flex-col gap-12 p-4 items-center'>
+                    <Timer
+                        secondsNumber={seconds}
+                        onChangeSeconds={setSeconds}
+                    />
                     <img
                         className='rounded-full w-72 h-72'
                         src={avatar_url}
