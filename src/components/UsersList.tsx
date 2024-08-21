@@ -24,12 +24,19 @@ const UsersList: React.FC<UsersListProps> = ({
     const [isEmptyQueryResult, setIsEmptyQueryResult] =
         useState<boolean>(false);
 
+    const [isErrorMessage, setIsErrorMessage] = useState('');
+
     useEffect(() => {
         if (searchRequest) {
+            const controller = new AbortController();
+            const signal = controller.signal;
+
             setIsSuccess(false);
             setLoading(true);
+            setIsErrorMessage('');
+
             axios
-                .get(`${API}/search/users?q=${searchRequest}`)
+                .get(`${API}/search/users?q=${searchRequest}`, { signal })
                 .then((result) => {
                     const data = result.data.items;
                     const sortedData = data.map((item: any) => {
@@ -42,7 +49,20 @@ const UsersList: React.FC<UsersListProps> = ({
                     setUsers(sortedData);
                     setLoading(false);
                     setIsSuccess(true);
+                })
+                .catch((error) => {
+                    if (axios.isCancel(error)) {
+                        setIsErrorMessage(
+                            `Request was canceled, ${error.message}`
+                        );
+                    } else {
+                        setIsErrorMessage('Smth went wrong!');
+                    }
                 });
+
+            return () => {
+                controller.abort();
+            };
         }
     }, [searchRequest]);
 
@@ -86,7 +106,14 @@ const UsersList: React.FC<UsersListProps> = ({
                     ))}
                 </ul>
             )}
-            {isEmptyQueryResult && <p>No users for this query</p>}
+            {isEmptyQueryResult && (
+                <p className='text-slate-600 text-center'>
+                    No users for this query
+                </p>
+            )}
+            {isErrorMessage && (
+                <p className='text-red-500 text-center'>{isErrorMessage}</p>
+            )}
         </>
     );
 };

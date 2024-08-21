@@ -17,54 +17,80 @@ const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [isSuccess, setIsSuccess] = useState<boolean>(false);
     const [seconds, setSeconds] = useState<number>(initialSecondsValue);
+    const [isErrorMessage, setIsErrorMessage] = useState('');
 
     useEffect(() => {
+        const controller = new AbortController();
+        const signal = controller.signal;
+
         setIsSuccess(false);
+        setIsErrorMessage('');
+
         if (selectedUser !== null) {
             setLoading(true);
+
             const getUserData = async () => {
-                const octokit = new Octokit({
-                    auth: TOKEN
-                });
+                try {
+                    const octokit = new Octokit({
+                        auth: TOKEN
+                    });
 
-                const account_id = selectedUser.id;
-                const result = await octokit.request('GET /user/{account_id}', {
-                    account_id,
-                    headers: {
-                        'X-GitHub-Api-Version': '2022-11-28'
+                    const account_id = selectedUser.id;
+                    const result = await octokit.request(
+                        'GET /user/{account_id}',
+                        {
+                            account_id,
+                            headers: {
+                                'X-GitHub-Api-Version': '2022-11-28'
+                            },
+                            request: {
+                                signal
+                            }
+                        }
+                    );
+                    const userData = result.data;
+
+                    const {
+                        id,
+                        login,
+                        avatar_url,
+                        followers,
+                        following,
+                        created_at,
+                        bio,
+                        location,
+                        name
+                    } = userData;
+
+                    const user = {
+                        id,
+                        login,
+                        avatar_url,
+                        followers,
+                        following,
+                        created_at,
+                        bio,
+                        location,
+                        name
+                    };
+                    setSeconds(initialSecondsValue);
+                    setUserDetailedData(user);
+                    setIsSuccess(true);
+                } catch (error) {
+                    if (signal.aborted) {
+                        setIsErrorMessage('Signal was aborted');
+                    } else {
+                        setIsErrorMessage('Smth went wrong: failed to fetch');
                     }
-                });
-                const userData = result.data;
-
-                const {
-                    id,
-                    login,
-                    avatar_url,
-                    followers,
-                    following,
-                    created_at,
-                    bio,
-                    location,
-                    name
-                } = userData;
-
-                const user = {
-                    id,
-                    login,
-                    avatar_url,
-                    followers,
-                    following,
-                    created_at,
-                    bio,
-                    location,
-                    name
-                };
-                setSeconds(initialSecondsValue);
-                setUserDetailedData(user);
-                setIsSuccess(true);
-                setLoading(false);
+                } finally {
+                    setLoading(false);
+                }
             };
             getUserData();
+        }
+
+        return () => {
+            controller.abort()
         }
     }, [selectedUser]);
 
@@ -102,6 +128,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
                     <Timer
                         secondsNumber={seconds}
                         onChangeSeconds={setSeconds}
+                        timerKey={userDetailedData.id}
                     />
                     <img
                         className='rounded-full w-72 h-72'
@@ -142,6 +169,9 @@ const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
                         </a>
                     </div>
                 </div>
+            )}
+            {isErrorMessage && (
+                <p className='text-red-500 text-center'>{isErrorMessage}</p>
             )}
         </>
     );
