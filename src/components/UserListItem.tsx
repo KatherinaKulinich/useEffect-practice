@@ -14,7 +14,10 @@ const UserListItem: React.FC<UserListItemProps> = ({
     selectUser,
     additionalStyles
 }) => {
-    const { login } = user;
+    
+    let { login } = user;
+    login = login?.length > 18 ? login.slice(0, 18) + '...' : login;
+
     return (
         <li
             className={`flex items-center justify-between border rounded-md px-4 py-2 cursor-pointer ${additionalStyles}`}
@@ -26,7 +29,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
                     iconSize={'25px'}
                     iconColor=''
                 />
-                <p className='text-xl text-slate-800'>{login}</p>
+                <p className='text-md text-slate-800'>{login}</p>
             </div>
             <Icon
                 icon={<HiOutlineChevronDoubleRight />}

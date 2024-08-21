@@ -79,6 +79,9 @@ const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
         return <p className='flex justify-center text-md uppercase text-slate-500'>Loading..</p>;
     }
 
+    const date = created_at && new Date(created_at).getFullYear()
+
+
     return (
         <>
             {!loading && isSuccess && userDetailedData && (
@@ -99,7 +102,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
                         </div>
                         <div className='font-light text-sm text-slate-600'>
                             <p>{location}</p>
-                            <p>Profile had been created at: {created_at}</p>
+                            <p>The profile had been created at: {date}</p>
                         </div>
                         <div className='flex items-center justify-between'>
                             <div className='flex items-center gap-2 text-md text-slate-600 font-semibold'>
