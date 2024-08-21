@@ -1,4 +1,4 @@
-import { Octokit } from 'octokit';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { User, UserDetailedData } from '../types/User';
 import Timer from './Timer';
@@ -8,7 +8,7 @@ interface UserDetailsProps {
 }
 
 const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
-    const TOKEN = import.meta.env.VITE_ACCESS_TOKEN;
+    const API = import.meta.env.VITE_API_URL;
     const initialSecondsValue = 10;
 
     const [userDetailedData, setUserDetailedData] =
@@ -20,6 +20,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
     const [isErrorMessage, setIsErrorMessage] = useState('');
 
     useEffect(() => {
+        let isMounted = true;
         const controller = new AbortController();
         const signal = controller.signal;
 
@@ -29,26 +30,12 @@ const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
         if (selectedUser !== null) {
             setLoading(true);
 
-            const getUserData = async () => {
-                try {
-                    const octokit = new Octokit({
-                        auth: TOKEN
-                    });
-
-                    const account_id = selectedUser.id;
-                    const result = await octokit.request(
-                        'GET /user/{account_id}',
-                        {
-                            account_id,
-                            headers: {
-                                'X-GitHub-Api-Version': '2022-11-28'
-                            },
-                            request: {
-                                signal
-                            }
-                        }
-                    );
-                    const userData = result.data;
+            axios
+                .get(`${API}/user/${selectedUser.id}`, {
+                    signal
+                })
+                .then((result) => {
+                    const { data } = result;
 
                     const {
                         id,
@@ -60,7 +47,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
                         bio,
                         location,
                         name
-                    } = userData;
+                    } = data;
 
                     const user = {
                         id,
@@ -76,22 +63,24 @@ const UserDetails: React.FC<UserDetailsProps> = ({ selectedUser }) => {
                     setSeconds(initialSecondsValue);
                     setUserDetailedData(user);
                     setIsSuccess(true);
-                } catch (error) {
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    setLoading(false);
+
                     if (signal.aborted) {
                         setIsErrorMessage('Signal was aborted');
                     } else {
                         setIsErrorMessage('Smth went wrong: failed to fetch');
                     }
-                } finally {
-                    setLoading(false);
-                }
-            };
-            getUserData();
+                });
         }
 
         return () => {
-            controller.abort()
-        }
+            isMounted = false;
+            isMounted && controller.abort();
+        };
     }, [selectedUser]);
 
     useEffect(() => {

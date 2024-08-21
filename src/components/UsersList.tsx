@@ -47,10 +47,12 @@ const UsersList: React.FC<UsersListProps> = ({
                     });
                     clearSearchRequest('');
                     setUsers(sortedData);
-                    setLoading(false);
                     setIsSuccess(true);
+                    setLoading(false);
                 })
                 .catch((error) => {
+                    setLoading(false);
+
                     if (axios.isCancel(error)) {
                         setIsErrorMessage(
                             `Request was canceled, ${error.message}`
